@@ -20,7 +20,7 @@ Wazuh is loaded with number of valued capabilities.
 
 ## Step-by-step installation
 
-### Installing Wazuh
+## 1.Installing Wazuh
 To start setting up Wazuh, add the Wazuh repository to the server.
 
 ### Adding the Wazuh repository
@@ -65,3 +65,25 @@ Install the Wazuh manager package:
  systemctl start wazuh-manager
  
  ```
+Allow Wazuh Manager Service Ports Through The Firewall
+```
+firewall-cmd --permanent --add-port={514,1514,1515,1516}/tcp
+firewall-cmd --permanent --add-port={514,1514}/udp
+firewall-cmd --reload
+```
+
+
+* 514 - send collected events from syslogs
+
+* 1514 - Send collected event from agents
+
+* 1515 - Agents registration service
+
+* 1516 - Wazuh cluster communications
+
+
+## 2.Install JAVA JDK
+
+install OpenJDK 8 JDK using yum, run this command:
+
+``` sudo yum install java-1.8.0-openjdk-devel ```

@@ -87,3 +87,69 @@ firewall-cmd --reload
 install OpenJDK 8 JDK using yum, run this command:
 
 ``` sudo yum install java-1.8.0-openjdk-devel ```
+
+## 3. Install the Elastic Stack
+
+### Add the Elastic repository and its GPG key:
+
+``` 
+rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
+cat > /etc/yum.repos.d/elastic.repo << EOF
+[elasticsearch-7.x]
+name=Elasticsearch repository for 7.x packages
+baseurl=https://artifacts.elastic.co/packages/7.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md
+EOF
+```
+
+### Install the Elasticsearch package:
+
+``` yum -y install elasticsearch-7.10.2 ```
+
+### Enable and start the Elasticsearch service:
+
+```
+systemctl daemon-reload
+systemctl enable elasticsearch.service
+systemctl start elasticsearch.service
+```
+
+### Configure Elasticsearch
+
+```
+vim /etc/elasticsearch/elasticsearch.yml
+```
+Make Elasticsearch to be able to listening on non loopback IP address. In here you can add current machine IP address. I’m not going to change the loopback IP, because this is the one Elastic node I’m going to setup. So, It doesn’t need to talk outside.
+```
+node.name: node-1
+network.host: 127.0.0.1
+http.port: 9200
+cluster.initial_master_nodes: ["node-1"]
+
+```
+```
+cat /etc/elasticsearch/elasticsearch.yml | grep -v "^#"
+
+node.name: node-1
+path.data: /var/lib/elasticsearch
+path.logs: /var/log/elasticsearch
+network.host: 127.0.0.1
+http.port: 9200
+cluster.initial_master_nodes: ["node-1"]
+```
+
+###  JVM Option Configuration
+
+Set initial/maximum size of total heap space. If your system has less memory. You should configure it to use small megabytes of ram.
+
+```
+vim /etc/elasticsearch/jvm.options
+
+-Xms2g
+-Xmx2g
+
+```

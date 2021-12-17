@@ -165,5 +165,44 @@ Kibana is a flexible and intuitive web interface for mining and visualizing the 
 yum install -y kibana-7.10.2
 ```
 
+### Create the /usr/share/kibana/data directory:
+
+```
+ mkdir /usr/share/kibana/data
+ chown -R kibana:kibana /usr/share/kibana
+ 
+```
+### Install the Wazuh plugin for Kibana:
+
+Install from URL:
+
+```
+ cd /usr/share/kibana/
+ sudo -u kibana bin/kibana-plugin install https://packages.wazuh.com/4.x/ui/kibana/wazuh_kibana-4.2.5_7.10.2-1.zip
+```
+
+### Configure Kibana
+
+Make Kibana to be able to listening on outside of the network and provide Elasticsearch instance IP address.
+
+In this case I’m going to keep loopback IP for Elasticsearch, Since I don’t want to expose outside network
+
+```
+vim /etc/kibana/kibana.yml
+
+
+server.port: 5601
+server.host: "172.25.10.50"
+elasticsearch.hosts: ["http://127.0.0.1:9200"]
+
+```
+
+### Enable and start the Kibana service:
+
+```
+systemctl daemon-reload
+systemctl enable kibana.service
+systemctl start kibana.service
+```
 
 

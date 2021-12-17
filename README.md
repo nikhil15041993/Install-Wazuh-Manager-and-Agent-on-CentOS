@@ -204,5 +204,47 @@ systemctl daemon-reload
 systemctl enable kibana.service
 systemctl start kibana.service
 ```
+## 5.Installing Filebeat
 
+Filebeat is the tool on the Wazuh server that securely forwards alerts and archived events to Elasticsearch.
 
+### Install the Filebeat package:
+
+``` 
+yum install filebeat
+```
+
+Download the preconfigured Filebeat configuration file used to forward the Wazuh alerts to Elasticsearch:
+
+``` 
+curl -so /etc/filebeat/filebeat.yml https://packages.wazuh.com/resources/4.2/open-distro/filebeat/7.x/filebeat_all_in_one.yml 
+
+```
+
+### Download the alerts template for Elasticsearch:
+
+``` 
+curl -so /etc/filebeat/wazuh-template.json https://raw.githubusercontent.com/wazuh/wazuh/4.2/extensions/elasticsearch/7.x/wazuh-template.json
+
+```
+
+``` 
+chmod go+r /etc/filebeat/wazuh-template.json 
+
+```
+
+### Download the Wazuh module for Filebeat:
+
+``` 
+curl -s https://packages.wazuh.com/4.x/filebeat/wazuh-filebeat-0.1.tar.gz | tar -xvz -C /usr/share/filebeat/module
+
+```
+
+### Enable and start the Filebeat service:
+
+```
+systemctl daemon-reload
+systemctl enable filebeat
+systemctl start filebeat
+
+```

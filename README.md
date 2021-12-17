@@ -1,0 +1,1 @@
+# Install-Wazuh-Manager-and-Agent-on-CentOS

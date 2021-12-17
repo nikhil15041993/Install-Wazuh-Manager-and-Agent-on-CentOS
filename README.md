@@ -248,3 +248,169 @@ systemctl enable filebeat
 systemctl start filebeat
 
 ```
+
+#### To ensure that Filebeat is successfully installed, run the following command:
+
+```
+filebeat test output
+```
+
+An example response should look as follows:
+
+Output
+```
+ elasticsearch: https://127.0.0.1:9200...
+   parse url... OK
+   connection...
+     parse host... OK
+     dns lookup... OK
+     addresses: 127.0.0.1
+     dial up... OK
+   TLS...
+     security: server's certificate chain verification is enabled
+     handshake... OK
+     TLS version: TLSv1.3
+     dial up... OK
+   talk to server... OK
+   version: 7.10.2
+   
+   ```
+   
+   # CLIENT SIDE CONFIGURATION - Adding Wazuh Agent
+   
+   ## Wazuh agent
+The Wazuh agent is multi-platform and runs on the hosts that the user wants to monitor. It communicates with the Wazuh manager, sending data in near real time through an encrypted and authenticated channel.
+
+### Allow Wazuh-Agent Service Port Through The Firewall
+
+```
+514,1514 / udp
+
+```
+
+### Add the Wazuh repository
+
+Import the GPG key:
+
+```
+rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH
+```
+
+Add the repository:
+
+
+```
+cat > /etc/yum.repos.d/wazuh.repo << EOF
+
+
+[wazuh]
+gpgcheck=1
+gpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH
+enabled=1
+name=EL-\$releasever - Wazuh
+baseurl=https://packages.wazuh.com/4.x/yum/
+protect=1
+EOF
+```
+## Deploy a Wazuh agent
+
+```
+WAZUH_MANAGER="10.0.0.2" yum install wazuh-agent
+
+```
+
+### Enable and start the Wazuh agent service.
+
+```
+systemctl daemon-reload
+systemctl enable wazuh-agent
+systemctl start wazuh-agent
+
+```
+
+
+
+## Add an agent - Add a CentOS agent
+
+On the Manager:
+
+Execute this command to add new agent to wazuh-manager.
+
+```
+/var/ossec/bin/manage_agents -a -n
+```
+
+### Output
+
+```
+****************************************
+* Wazuh v3.11.1 Agent manager.         *
+* The following options are available: *
+****************************************
+   (A)dd an agent (A).
+   (E)xtract key for an agent (E).
+   (L)ist already added agents (L).
+   (R)emove an agent (R).
+   (Q)uit.
+Choose your action: A,E,L,R or Q: 
+- Adding a new agent (use 'q' to return to the main menu).
+  Please provide the following:
+   * A name for the new agent:    * The IP Address of the new agent: Confirm adding it?(y/n): Agent added with ID 001.
+
+manage_agents: Exiting.
+
+```
+
+### List The Agents
+Execute this command to list the agent to get the ID of the added agent
+
+```
+/var/ossec/bin/manage_agents -l
+```
+
+### Extract Newly Added Agent’s Key
+
+Execute this command with the agent “ID” and extract the new agent’s key. Cpy this key you will need it for the agent registration.
+
+```
+ /var/ossec/bin/manage_agents -e 001
+ 
+ 
+ Agent key information for '001' is: 
+MDAxIGNsMSAxNzIuMjUuMTAuMTAwIDU4N2Y2ZmYyMDA0NmY1NzZmMDc2ODJkOWFlMzM5ZmM1OWY0YzQzYjBhZTk0MjI3NTQyZTkxYTczZmEyZTk4Njk=
+
+```
+
+Now, Let’s head over to agent host.
+
+On the Agent
+
+### Import the Key To The Agent and Connect Agent To The Manger
+
+
+```
+/var/ossec/bin/manage_agents -i MDAxIGNsMSAxNzIuMjUuMTAuMTAwIDU4N2Y2ZmYyMDA0NmY1NzZmMDc2ODJkOWFlMzM5ZmM1OWY0YzQzYjBhZTk0MjI3NTQyZTkxYTczZmEyZTk4Njk=
+
+
+Agent information:
+   ID:001
+   Name:cl1
+   IP Address:172.25.10.100
+
+Confirm adding it?(y/n): y
+Added.
+
+```
+
+### Check for Wazuh Manager’s IP
+
+Edit the Wazuh agent configuration in “/var/ossec/etc/ossec.conf” to add/change the Wazuh Manager Server IP address.
+
+### Restart Wazuh Agent Service
+
+```
+ systemctl restart wazuh-agent
+ systemctl status -l  wazuh-agent
+```
+
+

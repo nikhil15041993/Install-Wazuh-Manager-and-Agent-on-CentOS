@@ -110,13 +110,6 @@ EOF
 
 ``` yum -y install elasticsearch-7.10.2 ```
 
-### Enable and start the Elasticsearch service:
-
-```
-systemctl daemon-reload
-systemctl enable elasticsearch.service
-systemctl start elasticsearch.service
-```
 
 ### Configure Elasticsearch
 
@@ -153,3 +146,24 @@ vim /etc/elasticsearch/jvm.options
 -Xmx2g
 
 ```
+
+### Enable and start the Elasticsearch service:
+
+```
+systemctl daemon-reload
+systemctl enable elasticsearch.service
+systemctl start elasticsearch.service
+```
+
+## 4. Install Kibana
+
+Kibana is a flexible and intuitive web interface for mining and visualizing the events and archives stored in Elasticsearch. More info at Kibana.
+
+### Install the Kibana package:
+
+```
+yum install -y kibana-7.10.2
+```
+
+
+

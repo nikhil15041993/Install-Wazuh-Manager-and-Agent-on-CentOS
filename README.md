@@ -414,3 +414,23 @@ Edit the Wazuh agent configuration in “/var/ossec/etc/ossec.conf” to add/cha
 ```
 
 
+# Troubleshooting
+
+Kibana version can be checked by executing the following command:
+
+```
+cat /usr/share/kibana/package.json | grep version
+
+Output
+
+"version": "7.10.2",
+```
+The Wazuh version can be checked by executing the following command:
+
+```
+ /var/ossec/bin/wazuh-control info | grep WAZUH_VERSION
+ 
+Output
+
+WAZUH_VERSION="v4.2.5"
+```

@@ -434,3 +434,83 @@ Output
 
 WAZUH_VERSION="v4.2.5"
 ```
+
+## How to configure Rsyslog client to send events to Wazuh
+
+If you want to know how to configure a Rsyslog client to send event messages to the Wazuh manager step by step, this post is for you! Wazuh is able to send and receive messages via Syslog. Syslog allows machines where the Wazuh agent cannot be installed to report events.
+
+### Configure Wazuh manager to receive Syslog messages
+First of all, you will include this block in the local configuration:
+
+```
+<remote>
+  <connection>syslog</connection>
+  <port>514</port>
+  <protocol>udp</protocol>
+  <allowed-ips>10.0.0.0/24</allowed-ips>
+  <local_ip>10.0.0.1</local_ip>
+</remote>
+
+```
+ Usually, Syslog messages are sent to port 514 via UDP. It can be modified, but please remember that it has to match the configuration of the Rsyslog client.
+ 
+ The tag local_ip indicates the manager IP. If the IP is IPv6, the configuration must contain the tag ipv6 instead of local_ip. It can’t contain both.
+ 
+```
+
+sudo yum install rsyslog
+
+```
+Debian and Ubuntu:
+
+```
+sudo apt-get install rsyslog
+
+```
+
+The Rsyslog configuration file is located at /etc/rsyslog.conf. This file indicates to which server the messages will be sent.  To do this, you must add the following line indicating that all messages should be sent to IP 10.0.0.1 (the manager IP) and port 514 via UDP:
+
+```
+
+*.* @10.0.0.1:514
+
+```
+Add the following configuration to send a message via TCP
+
+```
+*.* @@10.0.0.1:514
+```
+
+The configuration files found in /etc/rsyslog.d determine which messages will be sent. If you want to forward a specific log file, you can create a configuration file in this folder. This file must have the extension .conf
+
+Now add the following configuration to this file:
+
+```
+
+$ModLoad imfile
+$InputFileName /var/log/program_file.log
+$InputFileTag my_program
+$InputFileStateFile program_file
+$InputFileSeverity info
+$InputRunFileMonitor
+
+```
+### Finally, restart Rsyslog to apply changes.
+
+```
+systemctl restart rsyslog
+
+```
+
+### Configuration of manager to listen for events from the agents.
+
+```
+<remote>
+  <connection>syslog</connection>
+  <port>514</port>
+  <protocol>tcp</protocol>
+  <allowed-ips>192.168.1.0/24</allowed-ips>
+  <local_ip>192.168.1.5</local_ip>
+</remote>
+
+```
